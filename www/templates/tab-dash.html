@@ -1,0 +1,12 @@
+<ion-view view-title="Dashboard" cache-view="false">
+  <ion-content class="padding">
+    <div class="list">
+
+      <li ng-click="shutDown(dev)" class="item item-icon-right" ng-repeat="dev in devices track by $index">
+        {{dev}}
+        <i ng-class="devStatus[dev].class" class="icon ion-power"></i>
+      </li>
+
+    </div>
+  </ion-content>
+</ion-view>

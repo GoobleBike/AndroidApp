@@ -1,0 +1,7 @@
+/* Empty. Add your own CSS if you like */
+i.icon.ion-power.inactive {
+  color: lightgray;
+}
+i.icon.ion-power.active {
+  color: black;
+}
