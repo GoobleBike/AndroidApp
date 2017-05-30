@@ -1,7 +1,7 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl',['$http','$scope',
-function($http,$scope) {
+.controller('DashCtrl',['$http','$scope','$ionicPopup',
+function($http,$scope,$ionicPopup) {
   var settings = window.localStorage.getItem('settings')
   if (settings && settings != "" && settings != "undefined") {
     settings = JSON.parse(settings)
@@ -12,6 +12,9 @@ function($http,$scope) {
     $http.get(ip+"/ping")
     .then(function (res) {
       $scope.devStatus[ip].class = "active"
+    })
+    .catch(function (err) {
+      $scope.devStatus[ip].class = "inactive"
     })
   }
   for (var dev in $scope.devices) {
@@ -25,20 +28,30 @@ function($http,$scope) {
   }
   $scope.shutDown = function (dev) {
     if ($scope.devStatus[dev].class == "active") {
-      $scope.showConfirm = function() {
-        var confirmPopup = $ionicPopup.confirm({
+        $ionicPopup.confirm({
           title: 'Shutting Down '+dev+"!",
           template: 'Are you sure?'
-        });
-        confirmPopup.then(function(res) {
+        }).then(function(res) {
           if(res) {
            console.log('You are sure');
-            $http.post(dev+'/SD', {p: settings.password})
+          //  $http({
+          //    method: 'POST',
+          //    url: dev+'/sd',
+          //    headers: {
+          //      'Content-Type': 'application/x-www-form-urlencoded'
+          //    },
+          //    data: JSON.stringify({p:settings.password})
+          //  })
+          var data =encodeURIComponent('p') + "=" + encodeURIComponent(settings.password);
+            $http.post(dev+'/sd',data, {
+              headers: {
+                 'Content-Type': 'application/x-www-form-urlencoded'
+               }
+             })
           } else {
             console.log('You are not sure');
           }
         });
-      };
     }
   }
 
@@ -78,9 +91,9 @@ function($http,$scope) {
   $scope.addDevice = function () {
     $ionicPopup.prompt({
       title: 'Add device',
-      template: 'Set the ip of your device',
+      template: 'Set the ip of your device, the path will be automatically added',
       inputType: 'text',
-      inputPlaceholder: 'http://192.168.1.100'
+      inputPlaceholder: '192.168.1.100'
     }).then(function(res) {
       if (!res || res === '') {
         throw ''
@@ -88,7 +101,7 @@ function($http,$scope) {
       if (!$scope.settings.devices || !$scope.settings.devices.length) {
         $scope.settings.devices = []
       }
-      $scope.settings.devices.push(res)
+      $scope.settings.devices.push('http://'+res+'/gooble/api')
       $scope.settingsUpdated()
     });
   }
